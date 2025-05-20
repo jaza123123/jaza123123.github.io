@@ -1,0 +1,33 @@
+/* style.css */
+
+/* Light mode */
+body {
+  background-color: #f4f4f4;
+  color: #000;
+  font-family: Arial, sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Dark mode */
+body.dark-mode {
+  background-color: #1e1e1e;
+  color: #ddd;
+}
+
+/* Toggle Theme Button */
+.toggle-theme {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  z-index: 999;
+}
+
+.toggle-theme:hover {
+  background-color: #666;
+}

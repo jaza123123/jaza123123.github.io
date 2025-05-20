@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Log Workout</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #000;
+      margin: 0;
+      padding: 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.dark-mode {
+      background-color: #121212;
+      color: #f0f0f0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    body.dark-mode .container {
+      background-color: #1e1e1e;
+      box-shadow: 0 0 10px #ffffff;
+    }
+
+    form label,
+    form input,
+    form select,
+    form textarea,
+    form button {
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    input,
+    select,
+    textarea {
+      padding: 10px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #fff;
+      color: #000;
+    }
+
+    body.dark-mode input,
+    body.dark-mode select,
+    body.dark-mode textarea {
+      background-color: #2a2a2a;
+      color: #f0f0f0;
+      border: 1px solid #555;
+    }
+
+    button {
+      padding: 10px;
+      font-size: 1em;
+      border: none;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .toggle-theme {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      padding: 6px 12px;
+      font-size: 14px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    body.dark-mode .toggle-theme {
+      background-color: #ddd;
+      color: #111;
+    }
+
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 30px;
+      text-decoration: none;
+      font-size: 1.1em;
+      color: #007bff;
+    }
+
+    body.dark-mode a {
+      color: #66b2ff;
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-theme" onclick="toggleTheme()">Toggle Theme</button>
+  <h1>Log a Workout</h1>
+
+  <div class="container">
+    <form id="logForm">
+      <label for="date">Date:</label>
+      <input type="date" id="date" required>
+
+      <label for="type">Type:</label>
+      <select id="type">
+        <option value="strength">Strength</option>
+        <option value="easy ride">Easy Ride</option>
+        <option value="workout ride">Workout Ride</option>
+      </select>
+
+      <label for="details">Details:</label>
+      <textarea id="details" rows="4" cols="30"></textarea>
+
+      <button type="submit">Log Workout</button>
+    </form>
+  </div>
+
+  <a href="index.html">Back to Home</a>
+
+  <script>
+    function applyTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.body.classList.toggle('dark-mode', savedTheme === 'dark');
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    applyTheme();
+
+    document.getElementById('logForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const date = document.getElementById('date').value;
+      const type = document.getElementById('type').value;
+      const details = document.getElementById('details').value;
+
+      const logs = JSON.parse(localStorage.getItem('logs')) || [];
+      logs.push({ date, type, details });
+      localStorage.setItem('logs', JSON.stringify(logs));
+
+      alert("Workout logged!");
+      document.getElementById('logForm').reset();
+    });
+  </script>
+</body>
+</html>

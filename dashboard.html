@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    :root {
+      --bg: #f4f4f4;
+      --text: #000;
+      --card: #fff;
+    }
+
+    body.dark {
+      --bg: #121212;
+      --text: #f0f0f0;
+      --card: #1e1e1e;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .container {
+      display: flex;
+      gap: 30px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    #logList {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .box {
+      background: var(--card);
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #ccc;
+      flex: 1;
+      min-width: 300px;
+      max-width: 600px;
+    }
+
+    .box h2 {
+      margin-top: 0;
+    }
+
+    .delete-button {
+      margin-left: 10px;
+      color: white;
+      background-color: red;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      text-decoration: none;
+      color: #007BFF;
+    }
+
+    .toggle-mode {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: #333;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    body.dark .toggle-mode {
+      background: #ddd;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-mode" onclick="toggleDarkMode()">Toggle Mode</button>
+  <h1>Your Workout Dashboard</h1>
+
+  <div class="container">
+    <!-- Workout Log -->
+    <div class="box">
+      <h2>Workout Log</h2>
+      <ul id="logList"></ul>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="box">
+      <h2>Stats</h2>
+      <ul>
+        <li>Total Workouts: <span id="totalCount">0</span></li>
+        <li>Strength Sessions: <span id="strengthCount">0</span></li>
+        <li>Easy Rides: <span id="easyCount">0</span></li>
+        <li>Workout Rides: <span id="workoutCount">0</span></li>
+        <li>Total Miles Ridden: <span id="mileageCount">0</span> mi</li>
+      </ul>
+    </div>
+  </div>
+
+  <a href="index.html">Back to Home</a>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const logList = document.getElementById('logList');
+      let logs = JSON.parse(localStorage.getItem('logs')) || [];
+
+      function renderLogs() {
+        logList.innerHTML = '';
+
+        if (logs.length === 0) {
+          logList.innerHTML = "<p>No workouts logged yet.</p>";
+        } else {
+          logs.forEach((log, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+              ${formatDate(log.date)} — ${log.type.toUpperCase()}: ${log.details}
+              <button class="delete-button" onclick="deleteLog(${index})">Delete</button>
+            `;
+            logList.appendChild(li);
+          });
+        }
+
+        renderStats();
+      }
+
+      function extractMiles(details) {
+        const match = details.match(/(\d+(\.\d+)?)\s*miles?/i);
+        return match ? parseFloat(match[1]) : 0;
+      }
+
+      function renderStats() {
+        const totalCount = logs.length;
+        const strengthCount = logs.filter(log => log.type === 'strength').length;
+        const easyCount = logs.filter(log => log.type === 'easy ride').length;
+        const workoutCount = logs.filter(log => log.type === 'workout ride').length;
+
+        const mileage = logs
+          .filter(log => log.type === 'easy ride' || log.type === 'workout ride')
+          .reduce((total, log) => total + extractMiles(log.details), 0);
+
+        document.getElementById('totalCount').textContent = totalCount;
+        document.getElementById('strengthCount').textContent = strengthCount;
+        document.getElementById('easyCount').textContent = easyCount;
+        document.getElementById('workoutCount').textContent = workoutCount;
+        document.getElementById('mileageCount').textContent = mileage.toFixed(1);
+      }
+
+      function formatDate(dateStr) {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+
+        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const months = ["January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December"];
+
+        const dayOfWeek = days[date.getDay()];
+        const monthName = months[month - 1];
+
+        return `${dayOfWeek}, ${monthName} ${day} ${year}`;
+      }
+
+      window.deleteLog = function(index) {
+        logs.splice(index, 1);
+        localStorage.setItem('logs', JSON.stringify(logs));
+        renderLogs();
+        renderStats();
+      };
+
+      function applyDarkModeSetting() {
+        const isDark = localStorage.getItem('theme') === 'dark';
+        document.body.classList.toggle('dark', isDark);
+      }
+
+      window.toggleDarkMode = function() {
+        const isDark = document.body.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      };
+
+      applyDarkModeSetting();
+      renderLogs();
+    });
+  </script>
+</body>
+</html>
