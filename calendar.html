@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Workout Calendar</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: var(--bg);
+      color: var(--text);
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      margin-top: 20px;
+    }
+
+    .day {
+      padding: 10px;
+      background-color: var(--card);
+      border: 1px solid #ccc;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .day.has-log {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    .workout-display {
+      margin-top: 20px;
+      background-color: var(--card);
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    .toggle-mode {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: #333;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    a {
+      display: block;
+      margin-top: 20px;
+      text-align: center;
+      color: #007bff;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-mode" onclick="toggleDarkMode()">Toggle Mode</button>
+  <h1>Workout Calendar</h1>
+  <div id="calendar" class="calendar"></div>
+
+  <div id="workoutDisplay" class="workout-display"></div>
+  <a href="index.html">Back to Home</a>
+
+  <script>
+    const calendar = document.getElementById('calendar');
+    const workoutDisplay = document.getElementById('workoutDisplay');
+
+    function toggleDarkMode() {
+      const isDark = document.body.classList.toggle('dark');
+      localStorage.setItem('darkMode', isDark);
+    }
+
+    function updateTheme() {
+      const darkMode = localStorage.getItem('darkMode') === 'true';
+      document.body.classList.toggle('dark', darkMode);
+    }
+
+    function generateCalendar() {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth(); // 0-indexed
+      const firstDay = new Date(year, month, 1).getDay(); // 0-indexed (Sun)
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const logs = JSON.parse(localStorage.getItem('logs')) || [];
+
+      const dateLogMap = {};
+      logs.forEach(log => {
+        dateLogMap[log.date] = (dateLogMap[log.date] || []).concat(log);
+      });
+
+      calendar.innerHTML = '';
+
+      // Fill initial empty slots
+      for (let i = 0; i < firstDay; i++) {
+        calendar.innerHTML += '<div></div>';
+      }
+
+      // Create day elements
+      for (let i = 1; i <= daysInMonth; i++) {
+        const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        const hasLog = dateLogMap[dayStr];
+        const dayEl = document.createElement('div');
+        dayEl.className = 'day' + (hasLog ? ' has-log' : '');
+        dayEl.textContent = i;
+
+        dayEl.onclick = () => {
+          workoutDisplay.innerHTML = `<h3>Workouts for ${dayStr}</h3>`;
+          if (hasLog) {
+            workoutDisplay.innerHTML += hasLog.map(log => 
+              `<p><strong>${log.type.toUpperCase()}:</strong> ${log.details}</p>`
+            ).join('');
+          } else {
+            workoutDisplay.innerHTML += '<p>No workouts logged.</p>';
+          }
+        };
+
+        calendar.appendChild(dayEl);
+      }
+    }
+
+    updateTheme();
+    generateCalendar();
+  </script>
+</body>
+</html>
